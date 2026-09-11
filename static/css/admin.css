@@ -1,0 +1,113 @@
+.admin-badge {
+    margin-left: auto;
+    font-size: 11px;
+    font-weight: 700;
+    color: #ffc24d;
+    background: rgba(255,170,0,0.12);
+    padding: 4px 10px;
+    border-radius: 999px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    margin: 0 16px;
+}
+.stat-card {
+    padding: 16px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(8,30,45,0.9), rgba(7,26,39,0.9));
+    border: 1px solid rgba(0,229,255,0.12);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+.stat-num {
+    font-size: 20px;
+    font-weight: 800;
+    color: var(--accent);
+    word-break: break-word;
+}
+.stat-label { font-size: 11px; color: var(--muted); }
+
+.filter-tabs {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    flex-wrap: wrap;
+}
+.filter-tab {
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.1);
+    background: rgba(255,255,255,0.04);
+    color: var(--muted);
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+}
+.filter-tab.active {
+    color: #04121a;
+    background: linear-gradient(135deg, #00E5FF, #14F1D9);
+    border-color: transparent;
+}
+
+.deposit-card {
+    padding: 14px 16px;
+    border-radius: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    margin-bottom: 10px;
+}
+.deposit-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+.deposit-user { font-size: 14px; font-weight: 700; }
+.deposit-info {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    font-size: 12px;
+    color: var(--muted);
+    flex-wrap: wrap;
+}
+
+.badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+.badge-pending { color: #ffc24d; background: rgba(255,170,0,0.12); }
+.badge-approved { color: #a7f3d0; background: rgba(16,185,129,0.12); }
+.badge-rejected { color: #fecaca; background: rgba(239,68,68,0.12); }
+.badge-admin { color: #c4b5fd; background: rgba(139,92,246,0.15); }
+
+.review-actions { display: flex; gap: 10px; margin-top: 12px; }
+.btn-approve, .btn-reject {
+    flex: 1; height: 40px; border: none; border-radius: 12px;
+    font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+}
+.btn-approve { background: linear-gradient(135deg, #00E5FF, #14F1D9); color: #04121a; }
+.btn-reject { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+
+.user-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    gap: 12px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 12px;
+    margin-bottom: 8px;
+}
+.user-name { display: block; font-size: 14px; font-weight: 600; }
+.user-phone { font-size: 12px; color: var(--muted); }
+.user-meta { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; font-size: 12px; }

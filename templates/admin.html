@@ -10,25 +10,14 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
     <link rel="stylesheet" href="{{ url_for('static', filename='css/portefeuille.css') }}">
-    <style>
-        .badge { font-size: 11px; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
-        .badge-pending { color: #ffc24d; background: rgba(255,170,0,0.12); }
-        .badge-approved { color: #a7f3d0; background: rgba(16,185,129,0.12); }
-        .badge-rejected { color: #fecaca; background: rgba(239,68,68,0.12); }
-        .review-actions { display: flex; gap: 10px; margin-top: 12px; }
-        .btn-approve, .btn-reject {
-            flex: 1; height: 42px; border: none; border-radius: 12px;
-            font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
-        }
-        .btn-approve { background: linear-gradient(135deg, #00E5FF, #14F1D9); color: #04121a; }
-        .btn-reject { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
-    </style>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/admin.css') }}">
 </head>
 <body>
     <main class="app">
         <header class="dash-header">
             <img class="dash-logo" src="{{ url_for('static', filename='f.jpg') }}" alt="Barka Énergie">
             <span class="dash-brand">Barka Énergie</span>
+            <span class="admin-badge">Admin</span>
         </header>
 
         {% with messages = get_flashed_messages(with_categories=true) %}
@@ -43,23 +32,37 @@
 
         <section class="page-title">
             <h1>Administration</h1>
-            <p>Validation des dépôts</p>
+            <p>Vue d'ensemble de la plateforme</p>
         </section>
 
+        <!-- ===== STATISTIQUES ===== -->
+        <section class="stats-grid">
+            <div class="stat-card"><span class="stat-num">{{ stats.total_users }}</span><span class="stat-label">Utilisateurs</span></div>
+            <div class="stat-card"><span class="stat-num">{{ stats.pending_deposits }}</span><span class="stat-label">Dépôts en attente</span></div>
+            <div class="stat-card"><span class="stat-num">{{ stats.total_deposits }}</span><span class="stat-label">Dépôts totaux</span></div>
+            <div class="stat-card"><span class="stat-num">FCFA {{ stats.total_invested }}</span><span class="stat-label">Total investi</span></div>
+            <div class="stat-card"><span class="stat-num">FCFA {{ stats.total_balance }}</span><span class="stat-label">Solde total</span></div>
+        </section>
+
+        <!-- ===== DÉPÔTS ===== -->
         <section class="card-section">
             <h2 class="section-title">Dépôts</h2>
+            <div class="filter-tabs">
+                <button class="filter-tab active" onclick="filterDeposits('all', this)">Tous</button>
+                <button class="filter-tab" onclick="filterDeposits('pending', this)">En attente</button>
+                <button class="filter-tab" onclick="filterDeposits('approved', this)">Approuvés</button>
+                <button class="filter-tab" onclick="filterDeposits('rejected', this)">Rejetés</button>
+            </div>
             {% if deposits %}
                 {% for d in deposits %}
-                <div class="invest-card">
-                    <div class="invest-top">
-                        <span class="invest-name">{{ d.full_name }}</span>
-                        {% if d.status == 'pending' %}<span class="badge badge-pending">En attente</span>
-                        {% elif d.status == 'approved' %}<span class="badge badge-approved">Approuvé</span>
-                        {% else %}<span class="badge badge-rejected">Rejeté</span>{% endif %}
+                <div class="deposit-card" data-status="{{ d.status }}">
+                    <div class="deposit-top">
+                        <span class="deposit-user">{{ d.full_name }}</span>
+                        <span class="badge badge-{{ d.status }}">{% if d.status == 'pending' %}En attente{% elif d.status == 'approved' %}Approuvé{% else %}Rejeté{% endif %}</span>
                     </div>
-                    <div class="invest-grid">
-                        <div class="stat"><span>Montant</span><b>FCFA {{ d.amount|fmt }}</b></div>
-                        <div class="stat"><span>Numéro</span><b>{{ d.phone or '-' }}</b></div>
+                    <div class="deposit-info">
+                        <span>Montant : FCFA {{ d.amount|fmt }}</span>
+                        <span>Numéro : {{ d.phone or '-' }}</span>
                     </div>
                     {% if d.status == 'pending' %}
                     <div class="review-actions">
@@ -81,7 +84,38 @@
                 <p class="hint">Aucun dépôt pour le moment.</p>
             {% endif %}
         </section>
+
+        <!-- ===== UTILISATEURS ===== -->
+        <section class="card-section">
+            <h2 class="section-title">Utilisateurs ({{ users|length }})</h2>
+            {% for u in users %}
+            <div class="user-row">
+                <div>
+                    <span class="user-name">{{ u.full_name }}</span>
+                    <span class="user-phone">{{ u.phone }}</span>
+                </div>
+                <div class="user-meta">
+                    <span>FCFA {{ u.balance|fmt }}</span>
+                    <span class="badge {% if u.is_admin %}badge-admin{% else %}badge-approved{% endif %}">{{ 'Admin' if u.is_admin else u.country }}</span>
+                </div>
+            </div>
+            {% endfor %}
+        </section>
     </main>
-<script src="{{ url_for('static', filename='app.js') }}"></script>
+
+    <script>
+        function filterDeposits(status, btn) {
+            document.querySelectorAll('.filter-tab').forEach(function(t) { t.classList.remove('active'); });
+            btn.classList.add('active');
+            document.querySelectorAll('.deposit-card').forEach(function(card) {
+                if (status === 'all' || card.dataset.status === status) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
 </body>
 </html>

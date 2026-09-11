@@ -437,13 +437,39 @@ def recharger():
 def admin():
     with get_db() as conn:
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT COUNT(*) AS cnt FROM users")
+            total_users = cur.fetchone()["cnt"]
+            cur.execute("SELECT COUNT(*) AS cnt FROM deposits")
+            total_deposits = cur.fetchone()["cnt"]
+            cur.execute("SELECT COUNT(*) AS cnt FROM deposits WHERE status = 'pending'")
+            pending_deposits = cur.fetchone()["cnt"]
+            cur.execute("SELECT COALESCE(SUM(price),0) AS total FROM subscriptions")
+            total_invested = cur.fetchone()["total"]
+            cur.execute("SELECT COALESCE(SUM(balance),0) AS total FROM users")
+            total_balance = cur.fetchone()["total"]
+
             cur.execute("""
                 SELECT d.id, d.amount, d.phone, d.status, d.created_at, u.full_name
                 FROM deposits d JOIN users u ON u.id = d.user_id
                 ORDER BY (d.status = 'pending') DESC, d.created_at DESC
             """)
             deposits = cur.fetchall()
-    return render_template("admin.html", deposits=deposits)
+
+            cur.execute("SELECT id, full_name, phone, country, balance, is_admin FROM users ORDER BY created_at DESC")
+            users = cur.fetchall()
+
+    return render_template(
+        "admin.html",
+        stats={
+            "total_users": total_users,
+            "total_deposits": total_deposits,
+            "pending_deposits": pending_deposits,
+            "total_invested": f"{int(float(total_invested or 0)):,}",
+            "total_balance": f"{int(float(total_balance or 0)):,}",
+        },
+        deposits=deposits,
+        users=users,
+    )
 
 
 @app.route("/admin/review", methods=["POST"])
