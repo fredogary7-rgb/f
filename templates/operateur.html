@@ -56,7 +56,7 @@
                 </div>
                 <input class="field-input" type="text" name="number" value="{{ user.withdrawal_number or '' }}" placeholder="Numéro de retrait">
                 <input class="field-input" type="number" name="amount" placeholder="Montant à retirer (FCFA)" min="0">
-                <p class="hint">Retrait minimum : FCFA {{ min_withdrawal|fmt }}</p>
+                <p class="hint">Retrait minimum : FCFA {{ min_withdrawal|fmt }} · Frais : {{ fee }}%</p>
                 <button class="save-btn" type="submit">Confirmer le retrait</button>
             </form>
         </section>

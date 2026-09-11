@@ -28,6 +28,7 @@ ALLOWED_COUNTRIES = ["Burkina Faso"]
 
 MIN_DEPOSIT = 3500
 MIN_WITHDRAWAL = 1000
+WITHDRAWAL_FEE = 0.10
 REFERRAL_LV1 = 0.15
 REFERRAL_LV2 = 0.02
 REFERRAL_LV3 = 0.01
@@ -324,7 +325,12 @@ def retrait():
             else:
                 operator = request.form.get("operator", "").strip()
                 number = request.form.get("number", "").strip() or user["withdrawal_number"]
-                flash(f"Retrait de FCFA {int(amount):,} via {operator or 'votre opérateur'} ({number}) en attente.", "success")
+                fee = amount * WITHDRAWAL_FEE
+                net = amount - fee
+                with get_db() as conn:
+                    with conn.cursor() as cur:
+                        cur.execute("UPDATE users SET balance = balance - %s WHERE id = %s", (amount, session["user_id"]))
+                flash(f"Retrait de FCFA {int(amount):,} demandé. Frais 10% = FCFA {int(fee):,}. Vous recevrez FCFA {int(net):,} via {operator or 'votre opérateur'}.", "success")
             return redirect(url_for("retrait"))
 
     balance = float(user["balance"] or 0)
@@ -359,7 +365,7 @@ def retrait_operateur():
         return redirect(url_for("retrait"))
 
     balance_str = f"{int(float(user['balance'] or 0)):,}"
-    return render_template("operateur.html", user=user, balance_str=balance_str, min_withdrawal=MIN_WITHDRAWAL)
+    return render_template("operateur.html", user=user, balance_str=balance_str, min_withdrawal=MIN_WITHDRAWAL, fee=int(WITHDRAWAL_FEE * 100))
 
 
 @app.route("/souscrire", methods=["POST"])
