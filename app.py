@@ -8,6 +8,7 @@ from datetime import datetime, timedelta
 from flask import (Flask, render_template, request, redirect, url_for,
                    session, flash)
 from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix
 import psycopg2
 from psycopg2.extras import RealDictCursor
 from dotenv import load_dotenv
@@ -16,6 +17,8 @@ load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
+# Respecter les en-têtes de proxy pour générer des URLs en https derrière Railway/Render
+app.wsgi_app = ProxyFix(app.wsgi_app, x_proto=1, x_host=1)
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
 if not DATABASE_URL:
