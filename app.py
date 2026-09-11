@@ -117,6 +117,22 @@ def init_db():
                         )
                     """)
                     cur.execute("CREATE INDEX IF NOT EXISTS idx_deposits_user ON deposits(user_id)")
+                    # Table des retraits
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS withdrawals (
+                            id SERIAL PRIMARY KEY,
+                            user_id INTEGER NOT NULL,
+                            amount NUMERIC NOT NULL,
+                            fee NUMERIC DEFAULT 0,
+                            net NUMERIC DEFAULT 0,
+                            operator VARCHAR(50),
+                            number VARCHAR(50),
+                            status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                            created_at TIMESTAMP DEFAULT NOW(),
+                            reviewed_at TIMESTAMP
+                        )
+                    """)
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_withdrawals_user ON withdrawals(user_id)")
             return
         except psycopg2.errors.DeadlockDetected:
             if attempt == 2:
@@ -330,6 +346,10 @@ def retrait():
                 with get_db() as conn:
                     with conn.cursor() as cur:
                         cur.execute("UPDATE users SET balance = balance - %s WHERE id = %s", (amount, session["user_id"]))
+                        cur.execute("""
+                            INSERT INTO withdrawals (user_id, amount, fee, net, operator, number, status)
+                            VALUES (%s, %s, %s, %s, %s, %s, 'pending')
+                        """, (session["user_id"], amount, fee, net, operator, number))
                 flash(f"Retrait de FCFA {int(amount):,} demandé. Frais 10% = FCFA {int(fee):,}. Vous recevrez FCFA {int(net):,} via {operator or 'votre opérateur'}.", "success")
             return redirect(url_for("retrait"))
 
@@ -467,6 +487,13 @@ def admin():
             cur.execute("SELECT id, full_name, phone, country, balance, is_admin FROM users ORDER BY created_at DESC")
             users = cur.fetchall()
 
+            cur.execute("""
+                SELECT w.id, w.amount, w.fee, w.net, w.operator, w.number, w.status, w.created_at, u.full_name
+                FROM withdrawals w JOIN users u ON u.id = w.user_id
+                ORDER BY (w.status = 'pending') DESC, w.created_at DESC
+            """)
+            withdrawals = cur.fetchall()
+
     return render_template(
         "admin.html",
         stats={
@@ -478,6 +505,8 @@ def admin():
         },
         deposits=deposits,
         users=users,
+        withdrawals=withdrawals,
+        products=PRODUCTS,
     )
 
 
@@ -532,6 +561,53 @@ def admin_balance():
         flash(f"Solde débité de FCFA {int(amount):,}.", "success")
     else:
         flash("Action invalide.", "error")
+    return redirect(url_for("admin"))
+
+
+@app.route("/admin/activate", methods=["POST"])
+@admin_required
+def admin_activate():
+    user_id = request.form.get("user_id")
+    product_name = request.form.get("product_name")
+    product = next((p for p in PRODUCTS if p["name"] == product_name), None)
+    if not product:
+        flash("Produit introuvable.", "error")
+        return redirect(url_for("admin"))
+    price = int(product["prix"].replace(",", ""))
+    daily = int(product["journalier"].replace(",", ""))
+    total = int(product["total"].replace(",", ""))
+    days = product["jours"]
+    with get_db() as conn:
+        with conn.cursor() as cur:
+            cur.execute("""
+                INSERT INTO subscriptions (user_id, product_name, price, daily_income, total_income, days)
+                VALUES (%s, %s, %s, %s, %s, %s)
+            """, (user_id, product_name, price, daily, total, days))
+    flash(f"Produit « {product_name} » activé pour l'utilisateur.", "success")
+    return redirect(url_for("admin"))
+
+
+@app.route("/admin/withdraw_review", methods=["POST"])
+@admin_required
+def admin_withdraw_review():
+    withdrawal_id = request.form.get("withdrawal_id")
+    action = request.form.get("action")
+    with get_db() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM withdrawals WHERE id = %s", (withdrawal_id,))
+            w = cur.fetchone()
+    if w and w["status"] == "pending":
+        if action == "approve":
+            with get_db() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("UPDATE withdrawals SET status = 'approved', reviewed_at = NOW() WHERE id = %s", (withdrawal_id,))
+            flash("Retrait approuvé.", "success")
+        elif action == "reject":
+            with get_db() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("UPDATE users SET balance = balance + %s WHERE id = %s", (w["amount"], w["user_id"]))
+                    cur.execute("UPDATE withdrawals SET status = 'rejected', reviewed_at = NOW() WHERE id = %s", (withdrawal_id,))
+            flash("Retrait rejeté et solde remboursé.", "success")
     return redirect(url_for("admin"))
 
 

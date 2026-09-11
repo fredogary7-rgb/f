@@ -44,6 +44,26 @@
             <div class="stat-card"><span class="stat-num">FCFA {{ stats.total_balance }}</span><span class="stat-label">Solde total</span></div>
         </section>
 
+        <!-- ===== ACTIVER UN PRODUIT ===== -->
+        <section class="card-section">
+            <h2 class="section-title">Activer un produit</h2>
+            <form method="post" action="{{ url_for('admin_activate') }}" class="activate-form">
+                <select class="balance-input" name="user_id" required>
+                    <option value="">Choisir un utilisateur</option>
+                    {% for u in users %}
+                    <option value="{{ u.id }}">{{ u.full_name }} ({{ u.phone }})</option>
+                    {% endfor %}
+                </select>
+                <select class="balance-input" name="product_name" required>
+                    <option value="">Choisir un produit</option>
+                    {% for p in products %}
+                    <option value="{{ p.name }}">{{ p.name }} — FCFA {{ p.prix }}</option>
+                    {% endfor %}
+                </select>
+                <button class="btn-credit" type="submit">Activer</button>
+            </form>
+        </section>
+
         <!-- ===== DÉPÔTS ===== -->
         <section class="card-section">
             <h2 class="section-title">Dépôts</h2>
@@ -82,6 +102,42 @@
                 {% endfor %}
             {% else %}
                 <p class="hint">Aucun dépôt pour le moment.</p>
+            {% endif %}
+        </section>
+
+        <!-- ===== RETRAITS ===== -->
+        <section class="card-section">
+            <h2 class="section-title">Retraits</h2>
+            {% if withdrawals %}
+                {% for w in withdrawals %}
+                <div class="deposit-card" data-status="{{ w.status }}">
+                    <div class="deposit-top">
+                        <span class="deposit-user">{{ w.full_name }}</span>
+                        <span class="badge badge-{{ w.status }}">{% if w.status == 'pending' %}En attente{% elif w.status == 'approved' %}Approuvé{% else %}Rejeté{% endif %}</span>
+                    </div>
+                    <div class="deposit-info">
+                        <span>Montant : FCFA {{ w.amount|fmt }}</span>
+                        <span>Net : FCFA {{ w.net|fmt }}</span>
+                        <span>{{ w.operator or '-' }} · {{ w.number or '-' }}</span>
+                    </div>
+                    {% if w.status == 'pending' %}
+                    <div class="review-actions">
+                        <form method="post" action="{{ url_for('admin_withdraw_review') }}" style="flex:1; display:flex;">
+                            <input type="hidden" name="withdrawal_id" value="{{ w.id }}">
+                            <input type="hidden" name="action" value="approve">
+                            <button class="btn-approve" type="submit">Approuver</button>
+                        </form>
+                        <form method="post" action="{{ url_for('admin_withdraw_review') }}" style="flex:1; display:flex;">
+                            <input type="hidden" name="withdrawal_id" value="{{ w.id }}">
+                            <input type="hidden" name="action" value="reject">
+                            <button class="btn-reject" type="submit">Rejeter</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="hint">Aucun retrait pour le moment.</p>
             {% endif %}
         </section>
 

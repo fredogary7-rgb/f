@@ -157,3 +157,10 @@
 }
 .btn-credit { background: linear-gradient(135deg, #00E5FF, #14F1D9); color: #04121a; }
 .btn-debit { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+
+.activate-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.balance-input option { background: #0a1f33; color: #fff; }
