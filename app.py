@@ -667,9 +667,9 @@ def partager():
     return render_template("partager.html", referral_code=user["referral_code"])
 
 
-@app.route("/echange")
+@app.route("/history")
 @login_required
-def echange():
+def history():
     credit_income(session["user_id"])
     uid = session["user_id"]
     transactions = []
@@ -739,7 +739,7 @@ def echange():
             row = cur.fetchone()
     balance = f"{int(float(row['balance'] or 0)):,}" if row else "0"
 
-    return render_template("echange.html", transactions=transactions, balance=balance)
+    return render_template("history.html", transactions=transactions, balance=balance)
 
 
 @app.route("/politique")
