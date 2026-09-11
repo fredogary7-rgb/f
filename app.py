@@ -17,6 +17,8 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("SECRET_KEY", secrets.token_hex(32))
 
 DATABASE_URL = os.environ.get("DATABASE_URL")
+if not DATABASE_URL:
+    raise RuntimeError("DATABASE_URL est manquant : définissez la variable d'environnement DATABASE_URL (voir .env.example).")
 
 ALLOWED_COUNTRIES = ["Burkina Faso"]
 
