@@ -24,17 +24,47 @@
             <p>Bienvenue sur votre espace Barka Énergie</p>
         </section>
 
+        <!-- ===== SOLDE ===== -->
+        <section class="balance-mini">
+            <span class="balance-mini-label">Solde disponible</span>
+            <span class="balance-mini-value">FCFA {{ balance_str }}</span>
+        </section>
+
         <!-- ===== MENU ===== -->
         <section class="menu-section">
             <div class="menu-grid">
-                <a class="menu-item" href="{{ url_for('recharger') }}">Recharger</a>
-                <a class="menu-item" href="{{ url_for('retrait') }}">Retrait</a>
-                <a class="menu-item" href="{{ url_for('portefeuille') }}">Portefeuille</a>
-                <a class="menu-item" href="{{ url_for('produit') }}">Produits</a>
-                <a class="menu-item" href="{{ url_for('equipe') }}">Équipe</a>
-                <a class="menu-item" href="{{ url_for('partager') }}">Partager</a>
-                <a class="menu-item" href="{{ url_for('echange') }}">Échange</a>
-                <a class="menu-item" href="{{ url_for('politique') }}">Politique</a>
+                <a class="menu-item" href="{{ url_for('recharger') }}">
+                    <span class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2 3 14h9l-1 8 10-12h-9l1-8z"/></svg></span>
+                    <span>Recharger</span>
+                </a>
+                <a class="menu-item" href="{{ url_for('retrait') }}">
+                    <span class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5"/><path d="M12 15V3"/></svg></span>
+                    <span>Retrait</span>
+                </a>
+                <a class="menu-item" href="{{ url_for('portefeuille') }}">
+                    <span class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"/><path d="M3 5v14a2 2 0 0 0 2 2h16v-5"/><path d="M18 12a2 2 0 0 0 0 4h4v-4Z"/></svg></span>
+                    <span>Portefeuille</span>
+                </a>
+                <a class="menu-item" href="{{ url_for('produit') }}">
+                    <span class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg></span>
+                    <span>Produits</span>
+                </a>
+                <a class="menu-item" href="{{ url_for('equipe') }}">
+                    <span class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+                    <span>Équipe</span>
+                </a>
+                <a class="menu-item" href="{{ url_for('partager') }}">
+                    <span class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="m8.59 13.51 6.83 3.98"/><path d="m15.41 6.51-6.82 3.98"/></svg></span>
+                    <span>Partager</span>
+                </a>
+                <a class="menu-item" href="{{ url_for('echange') }}">
+                    <span class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3 4 7l4 4"/><path d="M4 7h16"/><path d="m16 21 4-4-4-4"/><path d="M20 17H4"/></svg></span>
+                    <span>Échange</span>
+                </a>
+                <a class="menu-item" href="{{ url_for('politique') }}">
+                    <span class="menu-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h8"/></svg></span>
+                    <span>Politique</span>
+                </a>
             </div>
         </section>
 
@@ -43,7 +73,7 @@
             <p class="ref-label">Votre code de parrainage</p>
             <span class="ref-code" id="refCode">{{ user.referral_code }}</span>
             <button class="copy-btn" type="button" onclick="copyRef()">Copier le code</button>
-            <p class="ref-hint">Partagez ce code pour inviter vos proches</p>
+            <p class="ref-hint">{{ team_count }} filleul(s) · Partagez ce code pour gagner des commissions</p>
         </section>
 
         <!-- ===== MES INFORMATIONS ===== -->

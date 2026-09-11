@@ -662,12 +662,18 @@ def dashboard():
         with conn.cursor(cursor_factory=RealDictCursor) as cur:
             cur.execute("SELECT * FROM users WHERE id = %s", (session["user_id"],))
             user = cur.fetchone()
+            team_count = 0
+            if user:
+                cur.execute("SELECT COUNT(*) AS cnt FROM users WHERE referred_by = %s", (user["referral_code"],))
+                team_count = cur.fetchone()["cnt"]
 
     if not user:
         session.clear()
         return redirect(url_for("login"))
 
-    return render_template("dashboard.html", user=user)
+    balance = float(user["balance"] or 0)
+    balance_str = f"{int(balance):,}"
+    return render_template("dashboard.html", user=user, balance_str=balance_str, team_count=team_count)
 
 
 @app.route("/deconnexion")
