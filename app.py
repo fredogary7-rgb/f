@@ -3,7 +3,7 @@ import secrets
 import time
 from contextlib import contextmanager
 from functools import wraps
-from datetime import datetime, timedelta
+from datetime import datetime
 
 from flask import (Flask, render_template, request, redirect, url_for,
                    session, flash)
@@ -286,22 +286,6 @@ def retrait():
 
     has_subscription = int(sub_count or 0) > 0
 
-    # Statut du retrait (délai de 24h après modification du numéro)
-    now = datetime.now()
-    can_withdraw = False
-    remaining_hours = 0
-    if user.get("withdrawal_number"):
-        updated = user.get("withdrawal_updated_at")
-        if updated is None:
-            can_withdraw = True
-        else:
-            elapsed = now - updated
-            if elapsed >= timedelta(hours=24):
-                can_withdraw = True
-            else:
-                remaining = timedelta(hours=24) - elapsed
-                remaining_hours = int(remaining.total_seconds() // 3600) + 1
-
     if request.method == "POST":
         action = request.form.get("action", "")
 
@@ -317,7 +301,7 @@ def retrait():
                             SET withdrawal_number = %s, withdrawal_updated_at = NOW()
                             WHERE id = %s
                         """, (withdrawal_number, session["user_id"]))
-                flash("Numéro de retrait mis à jour. Un délai de 24h est requis avant tout retrait.", "success")
+                flash("Numéro de retrait mis à jour avec succès.", "success")
             return redirect(url_for("retrait"))
 
         if action == "withdraw":
@@ -334,8 +318,6 @@ def retrait():
                 flash("Investissez d'abord dans un produit pour pouvoir retirer.", "error")
             elif not user.get("withdrawal_number"):
                 flash("Configurez d'abord votre numéro de retrait.", "error")
-            elif not can_withdraw:
-                flash("Délai de 24h en cours avant tout retrait.", "error")
             elif amount > float(user["balance"] or 0):
                 flash("Solde insuffisant.", "error")
             else:
@@ -359,8 +341,6 @@ def retrait():
         "retrait.html",
         user=user,
         balance_str=balance_str,
-        can_withdraw=can_withdraw,
-        remaining_hours=remaining_hours,
         has_subscription=has_subscription,
     )
 

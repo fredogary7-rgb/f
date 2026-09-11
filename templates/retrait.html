@@ -43,9 +43,6 @@
             <div class="bank-card" style="margin:0 0 14px;">
                 <span class="bank-number-label">Numéro configuré</span>
                 <span class="bank-number-value">{{ user.withdrawal_number or 'Non configuré' }}</span>
-                {% if user.withdrawal_number and not can_withdraw %}
-                <p class="delay-warning">⏳ Délai de retrait en cours : environ {{ remaining_hours }}h restantes</p>
-                {% endif %}
             </div>
             <form method="post">
                 <input type="hidden" name="action" value="update_card">
@@ -64,8 +61,6 @@
             {% endif %}
             {% if not user.withdrawal_number %}
             <p class="hint">Configurez votre numéro de retrait pour pouvoir retirer.</p>
-            {% elif not can_withdraw %}
-            <p class="hint">Un délai de 24h est requis après modification du numéro avant de retirer.</p>
             {% endif %}
         </section>
     </main>

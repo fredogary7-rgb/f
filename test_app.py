@@ -130,10 +130,10 @@ assert "96,500" in html
 assert "Total investi" in html
 print("Solde et investissement corrects.")
 
-# 5d. Retrait avec produit payé mais délai 24h (numéro modifié récemment)
+# 5d. Retrait avec produit payé (plus de délai 24h)
 r = client.post("/retrait", data={"action": "withdraw", "amount": "1000", "operator": "Orange Money", "number": "22990000001"}, follow_redirects=True)
-assert "Délai de 24h" in r.get_data(as_text=True)
-print("Délai de 24h après modification bien appliqué.")
+assert "Retrait de FCFA" in r.get_data(as_text=True)
+print("Retrait effectué sans délai de 24h.")
 
 # 6. Nettoyage final
 with get_db() as conn:
