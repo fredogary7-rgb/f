@@ -506,6 +506,35 @@ def admin_review():
     return redirect(url_for("admin"))
 
 
+@app.route("/admin/balance", methods=["POST"])
+@admin_required
+def admin_balance():
+    user_id = request.form.get("user_id")
+    action = request.form.get("action")
+    try:
+        amount = float(request.form.get("amount", ""))
+    except (ValueError, TypeError):
+        amount = 0.0
+
+    if amount <= 0:
+        flash("Veuillez saisir un montant valide.", "error")
+        return redirect(url_for("admin"))
+
+    if action == "credit":
+        with get_db() as conn:
+            with conn.cursor() as cur:
+                cur.execute("UPDATE users SET balance = balance + %s WHERE id = %s", (amount, user_id))
+        flash(f"Solde crédité de FCFA {int(amount):,}.", "success")
+    elif action == "debit":
+        with get_db() as conn:
+            with conn.cursor() as cur:
+                cur.execute("UPDATE users SET balance = balance - %s WHERE id = %s", (amount, user_id))
+        flash(f"Solde débité de FCFA {int(amount):,}.", "success")
+    else:
+        flash("Action invalide.", "error")
+    return redirect(url_for("admin"))
+
+
 @app.route("/equipe")
 @login_required
 def equipe():

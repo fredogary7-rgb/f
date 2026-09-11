@@ -89,15 +89,23 @@
         <section class="card-section">
             <h2 class="section-title">Utilisateurs ({{ users|length }})</h2>
             {% for u in users %}
-            <div class="user-row">
-                <div>
-                    <span class="user-name">{{ u.full_name }}</span>
-                    <span class="user-phone">{{ u.phone }}</span>
+            <div class="user-card">
+                <div class="user-top">
+                    <div>
+                        <span class="user-name">{{ u.full_name }}</span>
+                        <span class="user-phone">{{ u.phone }}</span>
+                    </div>
+                    <div class="user-meta">
+                        <span>FCFA {{ u.balance|fmt }}</span>
+                        <span class="badge {% if u.is_admin %}badge-admin{% else %}badge-approved{% endif %}">{{ 'Admin' if u.is_admin else u.country }}</span>
+                    </div>
                 </div>
-                <div class="user-meta">
-                    <span>FCFA {{ u.balance|fmt }}</span>
-                    <span class="badge {% if u.is_admin %}badge-admin{% else %}badge-approved{% endif %}">{{ 'Admin' if u.is_admin else u.country }}</span>
-                </div>
+                <form method="post" action="{{ url_for('admin_balance') }}" class="balance-form">
+                    <input type="hidden" name="user_id" value="{{ u.id }}">
+                    <input class="balance-input" type="number" name="amount" placeholder="Montant (FCFA)" min="0">
+                    <button class="btn-credit" type="submit" name="action" value="credit">Créditer</button>
+                    <button class="btn-debit" type="submit" name="action" value="debit">Débiter</button>
+                </form>
             </div>
             {% endfor %}
         </section>
