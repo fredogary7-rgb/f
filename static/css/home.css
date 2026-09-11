@@ -8,7 +8,7 @@
     --accent-2: #14F1D9;
     --text: #FFFFFF;
     --muted: #8FA7B8;
-    --whatsapp: #0088cc;
+    --whatsapp: #25D366;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -167,7 +167,7 @@ a { text-decoration: none; color: inherit; }
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 0 22px rgba(0,136,204,0.5);
+    box-shadow: 0 0 22px rgba(37,211,102,0.5);
     z-index: 60;
     transition: transform 0.15s ease;
 }
