@@ -1,5 +1,6 @@
 import os
 import secrets
+import time
 from contextlib import contextmanager
 from functools import wraps
 from datetime import datetime, timedelta
@@ -55,61 +56,68 @@ def get_db():
 
 
 def init_db():
-    """Crée la table users si elle n'existe pas encore."""
-    with get_db() as conn:
-        with conn.cursor() as cur:
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS users (
-                    id SERIAL PRIMARY KEY,
-                    full_name VARCHAR(100) NOT NULL,
-                    phone VARCHAR(20) UNIQUE NOT NULL,
-                    password_hash VARCHAR(255) NOT NULL,
-                    country VARCHAR(50) NOT NULL,
-                    referral_code VARCHAR(20) UNIQUE NOT NULL,
-                    referred_by VARCHAR(20),
-                    balance NUMERIC DEFAULT 0,
-                    withdrawal_number VARCHAR(100),
-                    withdrawal_updated_at TIMESTAMP,
-                    created_at TIMESTAMP DEFAULT NOW()
-                )
-            """)
-            cur.execute("CREATE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)")
-            cur.execute("CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone)")
-            # Migration des tables existantes
-            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS balance NUMERIC DEFAULT 0")
-            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS withdrawal_number VARCHAR(100)")
-            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS withdrawal_updated_at TIMESTAMP")
-            # Table des souscriptions (investissements)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS subscriptions (
-                    id SERIAL PRIMARY KEY,
-                    user_id INTEGER NOT NULL,
-                    product_name VARCHAR(100) NOT NULL,
-                    price NUMERIC NOT NULL,
-                    daily_income NUMERIC NOT NULL,
-                    total_income NUMERIC NOT NULL,
-                    days INTEGER NOT NULL DEFAULT 210,
-                    start_date TIMESTAMP DEFAULT NOW(),
-                    credited_amount NUMERIC DEFAULT 0,
-                    created_at TIMESTAMP DEFAULT NOW()
-                )
-            """)
-            cur.execute("CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions(user_id)")
-            # Colonne administrateur
-            cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE")
-            # Table des dépôts (rechargements à valider par l'admin)
-            cur.execute("""
-                CREATE TABLE IF NOT EXISTS deposits (
-                    id SERIAL PRIMARY KEY,
-                    user_id INTEGER NOT NULL,
-                    amount NUMERIC NOT NULL,
-                    phone VARCHAR(30),
-                    status VARCHAR(20) NOT NULL DEFAULT 'pending',
-                    created_at TIMESTAMP DEFAULT NOW(),
-                    reviewed_at TIMESTAMP
-                )
-            """)
-            cur.execute("CREATE INDEX IF NOT EXISTS idx_deposits_user ON deposits(user_id)")
+    """Crée les tables et applique les migrations (avec retry en cas de conflit concurrent)."""
+    for attempt in range(3):
+        try:
+            with get_db() as conn:
+                with conn.cursor() as cur:
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS users (
+                            id SERIAL PRIMARY KEY,
+                            full_name VARCHAR(100) NOT NULL,
+                            phone VARCHAR(20) UNIQUE NOT NULL,
+                            password_hash VARCHAR(255) NOT NULL,
+                            country VARCHAR(50) NOT NULL,
+                            referral_code VARCHAR(20) UNIQUE NOT NULL,
+                            referred_by VARCHAR(20),
+                            balance NUMERIC DEFAULT 0,
+                            withdrawal_number VARCHAR(100),
+                            withdrawal_updated_at TIMESTAMP,
+                            created_at TIMESTAMP DEFAULT NOW()
+                        )
+                    """)
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_users_referral_code ON users(referral_code)")
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_users_phone ON users(phone)")
+                    # Migration des tables existantes
+                    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS balance NUMERIC DEFAULT 0")
+                    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS withdrawal_number VARCHAR(100)")
+                    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS withdrawal_updated_at TIMESTAMP")
+                    # Table des souscriptions (investissements)
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS subscriptions (
+                            id SERIAL PRIMARY KEY,
+                            user_id INTEGER NOT NULL,
+                            product_name VARCHAR(100) NOT NULL,
+                            price NUMERIC NOT NULL,
+                            daily_income NUMERIC NOT NULL,
+                            total_income NUMERIC NOT NULL,
+                            days INTEGER NOT NULL DEFAULT 210,
+                            start_date TIMESTAMP DEFAULT NOW(),
+                            credited_amount NUMERIC DEFAULT 0,
+                            created_at TIMESTAMP DEFAULT NOW()
+                        )
+                    """)
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_subscriptions_user ON subscriptions(user_id)")
+                    # Colonne administrateur
+                    cur.execute("ALTER TABLE users ADD COLUMN IF NOT EXISTS is_admin BOOLEAN DEFAULT FALSE")
+                    # Table des dépôts (rechargements à valider par l'admin)
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS deposits (
+                            id SERIAL PRIMARY KEY,
+                            user_id INTEGER NOT NULL,
+                            amount NUMERIC NOT NULL,
+                            phone VARCHAR(30),
+                            status VARCHAR(20) NOT NULL DEFAULT 'pending',
+                            created_at TIMESTAMP DEFAULT NOW(),
+                            reviewed_at TIMESTAMP
+                        )
+                    """)
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_deposits_user ON deposits(user_id)")
+            return
+        except psycopg2.errors.DeadlockDetected:
+            if attempt == 2:
+                raise
+            time.sleep(0.3 * (attempt + 1))
 
 
 def generate_referral_code():
@@ -669,6 +677,10 @@ def logout():
     return redirect(url_for("login"))
 
 
+# Création des tables au démarrage (fonctionne avec `python app.py` et `gunicorn app:app`)
+init_db()
+
 if __name__ == "__main__":
-    init_db()
-    app.run(debug=True, host="0.0.0.0", port=5000)
+    # Mode debug uniquement si FLASK_DEBUG=1 (jamais en production)
+    debug = os.environ.get("FLASK_DEBUG", "0") == "1"
+    app.run(debug=debug, host="0.0.0.0", port=5000)
