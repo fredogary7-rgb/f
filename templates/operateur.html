@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Retrait - Barka Énergie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/portefeuille.css') }}">
+</head>
+<body>
+    <main class="app">
+        <header class="dash-header">
+            <img class="dash-logo" src="{{ url_for('static', filename='f.jpg') }}" alt="Barka Énergie">
+            <span class="dash-brand">Barka Énergie</span>
+        </header>
+
+        <section class="page-title">
+            <h1>Retrait</h1>
+            <p>Choisissez l'opérateur et confirmez le retrait</p>
+        </section>
+
+        <section class="card-section">
+            <h2 class="section-title">Solde disponible</h2>
+            <div class="bank-balance" style="margin:0;">FCFA {{ balance_str }}</div>
+        </section>
+
+        <section class="card-section">
+            <h2 class="section-title">Sélectionnez l'opérateur</h2>
+            <form method="post" action="{{ url_for('retrait') }}">
+                <input type="hidden" name="action" value="withdraw">
+                <div class="operator-grid">
+                    <label class="operator-card">
+                        <input type="radio" name="operator" value="Orange Money" checked>
+                        <span class="operator-logo" style="background:#ff6600;">OM</span>
+                        <span class="operator-name">Orange Money</span>
+                    </label>
+                    <label class="operator-card">
+                        <input type="radio" name="operator" value="Moov Money">
+                        <span class="operator-logo" style="background:#00a8e8;">MV</span>
+                        <span class="operator-name">Moov Money</span>
+                    </label>
+                    <label class="operator-card">
+                        <input type="radio" name="operator" value="MTN MoMo">
+                        <span class="operator-logo" style="background:#ffcc00;color:#333;">MTN</span>
+                        <span class="operator-name">MTN MoMo</span>
+                    </label>
+                    <label class="operator-card">
+                        <input type="radio" name="operator" value="Wave">
+                        <span class="operator-logo" style="background:#1dc4fd;">W</span>
+                        <span class="operator-name">Wave</span>
+                    </label>
+                </div>
+                <input class="field-input" type="text" name="number" value="{{ user.withdrawal_number or '' }}" placeholder="Numéro de retrait">
+                <input class="field-input" type="number" name="amount" placeholder="Montant à retirer (FCFA)" min="0">
+                <p class="hint">Retrait minimum : FCFA {{ min_withdrawal|fmt }}</p>
+                <button class="save-btn" type="submit">Confirmer le retrait</button>
+            </form>
+        </section>
+    </main>
+
+    <a class="whatsapp-btn" href="https://t.me/servi_ce09" target="_blank" rel="noopener" aria-label="Service client Telegram">
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/></svg>
+    </a>
+
+    <nav class="bottom-nav">
+        <a class="nav-item" href="{{ url_for('home') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Maison</span>
+        </a>
+        <a class="nav-item" href="{{ url_for('produit') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            <span>Produit</span>
+        </a>
+        <a class="nav-item active" href="{{ url_for('portefeuille') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+            <span>Portefeuille</span>
+        </a>
+        <a class="nav-item" href="{{ url_for('dashboard') if session.get('user_id') else url_for('login') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Mon</span>
+        </a>
+    </nav>
+
+    <div class="toast" id="toast"></div>
+    <script>
+        const toast = document.getElementById('toast');
+        let toastTimer;
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+        }
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

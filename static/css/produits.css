@@ -1,0 +1,86 @@
+.page-title {
+    padding: 12px 20px 18px;
+    animation: fadeUp 0.5s ease 0.05s both;
+}
+.page-title h1 { font-size: 24px; font-weight: 700; }
+.page-title p { font-size: 13px; color: var(--muted); margin-top: 5px; }
+
+.products-list {
+    margin: 0 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.product-card {
+    border-radius: 20px;
+    overflow: hidden;
+    background: linear-gradient(180deg, rgba(8,30,45,0.9), rgba(7,26,39,0.9));
+    border: 1px solid rgba(0,229,255,0.12);
+    box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+    animation: fadeUp 0.5s ease both;
+}
+.product-img {
+    width: 100%;
+    height: 110px;
+    object-fit: cover;
+    display: block;
+}
+.product-body { padding: 16px; }
+.product-name {
+    font-size: 17px;
+    font-weight: 700;
+    background: linear-gradient(90deg, #ffffff, #cfeaff);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+}
+.product-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin: 14px 0;
+}
+.stat {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 10px 12px;
+}
+.stat span {
+    display: block;
+    font-size: 11px;
+    color: var(--muted);
+    margin-bottom: 4px;
+}
+.stat b {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--accent);
+    word-break: break-word;
+}
+.invest-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 46px;
+    border: none;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #00E5FF, #14F1D9);
+    color: #04121a;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    font-family: inherit;
+    text-decoration: none;
+    transition: transform 0.15s ease;
+}
+.cancel-link {
+    display: block;
+    text-align: center;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--muted);
+}
+.invest-btn:active { transform: scale(0.97); }

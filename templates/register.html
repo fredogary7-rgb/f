@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Inscription - Barka Énergie{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h1 class="auth-title">Créer un compte</h1>
+        <p class="auth-subtitle">Rejoignez Barka Énergie dès maintenant</p>
+
+        <form method="post" action="{{ url_for('register') }}" class="auth-form" novalidate>
+            <div class="field">
+                <label for="full_name">Nom complet</label>
+                <input type="text" id="full_name" name="full_name" value="{{ full_name }}" placeholder="Votre nom et prénom" required>
+            </div>
+
+            <div class="field">
+                <label for="phone">Téléphone</label>
+                <input type="tel" id="phone" name="phone" value="{{ phone }}" placeholder="Ex : +228 90 00 00 00" required>
+            </div>
+
+            <div class="field">
+                <label>Pays</label>
+                <div class="country-group">
+                    {% for c in countries %}
+                    <label class="country-card">
+                        <input type="radio" name="country" value="{{ c }}" {% if country == c %}checked{% endif %} required>
+                        <span class="country-flag">{% if c == 'Togo' %}🇹🇬{% elif c == "Côte d'Ivoire" %}🇨🇮{% elif c == 'Burkina Faso' %}🇧🇫{% endif %}</span>
+                        <span class="country-name">{{ c }}</span>
+                    </label>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="field">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" placeholder="Au moins 6 caractères" required>
+            </div>
+
+            <div class="field">
+                <label for="confirm_password">Confirmer le mot de passe</label>
+                <input type="password" id="confirm_password" name="confirm_password" placeholder="Retapez le mot de passe" required>
+            </div>
+
+            <div class="field">
+                <label for="referral_code">Code de parrainage <span class="optional">(optionnel)</span></label>
+                <input type="text" id="referral_code" name="referral_code" value="{{ referral }}" placeholder="Ex : SUP1A2B3C" style="text-transform:uppercase;">
+            </div>
+
+            <button type="submit" class="btn btn-primary">S'inscrire</button>
+        </form>
+
+        <p class="auth-switch">
+            Vous avez déjà un compte ? <a href="{{ url_for('login') }}">Se connecter</a>
+        </p>
+        <p class="auth-switch" style="font-size:12px;">
+            En vous inscrivant, vous acceptez notre <a href="{{ url_for('politique') }}">politique d'utilisation</a>.
+        </p>
+    </div>
+</div>
+{% endblock %}

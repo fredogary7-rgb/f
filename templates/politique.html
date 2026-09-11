@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Politique d'utilisation - Barka Énergie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/portefeuille.css') }}">
+</head>
+<body>
+    <main class="app">
+        <header class="dash-header">
+            <img class="dash-logo" src="{{ url_for('static', filename='f.jpg') }}" alt="Barka Énergie">
+            <span class="dash-brand">Barka Énergie</span>
+        </header>
+
+        <section class="page-title">
+            <h1>Politique d'utilisation</h1>
+            <p>Conditions générales de Barka Énergie</p>
+        </section>
+
+        <section class="card-section">
+            <div class="policy-box">
+                <h2>1. Introduction</h2>
+                <p>Barka Énergie est une plateforme d'investissement dans le domaine de l'énergie solaire. En utilisant nos services, vous acceptez les présentes conditions d'utilisation.</p>
+
+                <h2>2. Compte utilisateur</h2>
+                <p>Chaque utilisateur doit fournir des informations exactes lors de l'inscription. Vous êtes responsable de la confidentialité de vos identifiants de connexion.</p>
+
+                <h2>3. Dépôts et rechargements</h2>
+                <p>Le dépôt minimum est de 3 500 FCFA. Chaque dépôt est soumis à la validation de l'administrateur avant d'être crédité sur votre solde.</p>
+
+                <h2>4. Investissements et revenus</h2>
+                <p>Chaque produit génère un revenu journalier sur une durée de 210 jours. Les revenus sont crédités quotidiennement sur votre solde disponible.</p>
+
+                <h2>5. Retraits</h2>
+                <p>Le retrait minimum est de 1 000 FCFA. Un délai de sécurité de 24 heures est appliqué après toute modification de votre numéro de retrait.</p>
+
+                <h2>6. Parrainage</h2>
+                <p>Le programme de parrainage récompense 3 niveaux : 15% (niveau 1), 2% (niveau 2) et 1% (niveau 3) du montant investi par vos filleuls.</p>
+
+                <h2>7. Responsabilités et risques</h2>
+                <p>Tout investissement comporte des risques. Barka Énergie ne garantit aucun rendement et ne saurait être tenue responsable des pertes éventuelles.</p>
+
+                <h2>8. Contact</h2>
+                <p>Pour toute question, contactez notre service client via le bouton Telegram disponible sur la plateforme.</p>
+            </div>
+        </section>
+
+        <a class="logout-btn" href="{{ url_for('home') }}">Retour à l'accueil</a>
+    </main>
+
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

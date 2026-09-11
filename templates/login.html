@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Connexion - Barka Énergie{% endblock %}
+{% block content %}
+<div class="auth-wrapper">
+    <div class="auth-card">
+        <h1 class="auth-title">Connexion</h1>
+        <p class="auth-subtitle">Content de vous revoir !</p>
+
+        <form method="post" action="{{ url_for('login') }}" class="auth-form" novalidate>
+            <div class="field">
+                <label for="login">Téléphone</label>
+                <input type="tel" id="login" name="login" value="{{ login_field }}" placeholder="Votre numéro de téléphone" required>
+            </div>
+
+            <div class="field">
+                <label for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" placeholder="Votre mot de passe" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Se connecter</button>
+        </form>
+
+        <p class="auth-switch">
+            Pas encore de compte ? <a href="{{ url_for('register') }}">Créer un compte</a>
+        </p>
+    </div>
+</div>
+{% endblock %}

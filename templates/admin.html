@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Administration - Barka Énergie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/portefeuille.css') }}">
+    <style>
+        .badge { font-size: 11px; padding: 4px 10px; border-radius: 999px; font-weight: 600; }
+        .badge-pending { color: #ffc24d; background: rgba(255,170,0,0.12); }
+        .badge-approved { color: #a7f3d0; background: rgba(16,185,129,0.12); }
+        .badge-rejected { color: #fecaca; background: rgba(239,68,68,0.12); }
+        .review-actions { display: flex; gap: 10px; margin-top: 12px; }
+        .btn-approve, .btn-reject {
+            flex: 1; height: 42px; border: none; border-radius: 12px;
+            font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit;
+        }
+        .btn-approve { background: linear-gradient(135deg, #00E5FF, #14F1D9); color: #04121a; }
+        .btn-reject { background: rgba(239,68,68,0.15); color: #fca5a5; border: 1px solid rgba(239,68,68,0.4); }
+    </style>
+</head>
+<body>
+    <main class="app">
+        <header class="dash-header">
+            <img class="dash-logo" src="{{ url_for('static', filename='f.jpg') }}" alt="Barka Énergie">
+            <span class="dash-brand">Barka Énergie</span>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="page-title">
+            <h1>Administration</h1>
+            <p>Validation des dépôts</p>
+        </section>
+
+        <section class="card-section">
+            <h2 class="section-title">Dépôts</h2>
+            {% if deposits %}
+                {% for d in deposits %}
+                <div class="invest-card">
+                    <div class="invest-top">
+                        <span class="invest-name">{{ d.full_name }}</span>
+                        {% if d.status == 'pending' %}<span class="badge badge-pending">En attente</span>
+                        {% elif d.status == 'approved' %}<span class="badge badge-approved">Approuvé</span>
+                        {% else %}<span class="badge badge-rejected">Rejeté</span>{% endif %}
+                    </div>
+                    <div class="invest-grid">
+                        <div class="stat"><span>Montant</span><b>FCFA {{ d.amount|fmt }}</b></div>
+                        <div class="stat"><span>Numéro</span><b>{{ d.phone or '-' }}</b></div>
+                    </div>
+                    {% if d.status == 'pending' %}
+                    <div class="review-actions">
+                        <form method="post" action="{{ url_for('admin_review') }}" style="flex:1; display:flex;">
+                            <input type="hidden" name="deposit_id" value="{{ d.id }}">
+                            <input type="hidden" name="action" value="approve">
+                            <button class="btn-approve" type="submit">Approuver</button>
+                        </form>
+                        <form method="post" action="{{ url_for('admin_review') }}" style="flex:1; display:flex;">
+                            <input type="hidden" name="deposit_id" value="{{ d.id }}">
+                            <input type="hidden" name="action" value="reject">
+                            <button class="btn-reject" type="submit">Rejeter</button>
+                        </form>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            {% else %}
+                <p class="hint">Aucun dépôt pour le moment.</p>
+            {% endif %}
+        </section>
+    </main>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
