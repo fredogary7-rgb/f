@@ -133,6 +133,18 @@ def init_db():
                         )
                     """)
                     cur.execute("CREATE INDEX IF NOT EXISTS idx_withdrawals_user ON withdrawals(user_id)")
+                    # Table des commissions de parrainage
+                    cur.execute("""
+                        CREATE TABLE IF NOT EXISTS commissions (
+                            id SERIAL PRIMARY KEY,
+                            user_id INTEGER NOT NULL,
+                            amount NUMERIC NOT NULL,
+                            level INTEGER NOT NULL DEFAULT 1,
+                            source_user_id INTEGER,
+                            created_at TIMESTAMP DEFAULT NOW()
+                        )
+                    """)
+                    cur.execute("CREATE INDEX IF NOT EXISTS idx_commissions_user ON commissions(user_id)")
             return
         except psycopg2.errors.DeadlockDetected:
             if attempt == 2:
@@ -182,18 +194,21 @@ def credit_referral_commissions(user_id, amount):
             if not lv1:
                 return
             cur.execute("UPDATE users SET balance = balance + %s WHERE id = %s", (amount * REFERRAL_LV1, lv1[0]))
+            cur.execute("INSERT INTO commissions (user_id, amount, level, source_user_id) VALUES (%s, %s, 1, %s)", (lv1[0], amount * REFERRAL_LV1, user_id))
             # Niveau 2
             if lv1[1]:
                 cur.execute("SELECT id, referred_by FROM users WHERE referral_code = %s", (lv1[1],))
                 lv2 = cur.fetchone()
                 if lv2:
                     cur.execute("UPDATE users SET balance = balance + %s WHERE id = %s", (amount * REFERRAL_LV2, lv2[0]))
+                    cur.execute("INSERT INTO commissions (user_id, amount, level, source_user_id) VALUES (%s, %s, 2, %s)", (lv2[0], amount * REFERRAL_LV2, user_id))
                     # Niveau 3
                     if lv2[1]:
                         cur.execute("SELECT id FROM users WHERE referral_code = %s", (lv2[1],))
                         lv3 = cur.fetchone()
                         if lv3:
                             cur.execute("UPDATE users SET balance = balance + %s WHERE id = %s", (amount * REFERRAL_LV3, lv3[0]))
+                            cur.execute("INSERT INTO commissions (user_id, amount, level, source_user_id) VALUES (%s, %s, 3, %s)", (lv3[0], amount * REFERRAL_LV3, user_id))
 
 
 def login_required(f):
@@ -655,7 +670,76 @@ def partager():
 @app.route("/echange")
 @login_required
 def echange():
-    return render_template("echange.html")
+    credit_income(session["user_id"])
+    uid = session["user_id"]
+    transactions = []
+
+    with get_db() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            # Dépôts
+            cur.execute("SELECT id, amount, status, created_at FROM deposits WHERE user_id = %s", (uid,))
+            for d in cur.fetchall():
+                transactions.append({
+                    "type": "deposit",
+                    "label": "Dépôt",
+                    "amount": float(d["amount"]),
+                    "sign": "+",
+                    "status": d["status"],
+                    "date": d["created_at"],
+                    "detail": None,
+                })
+            # Souscriptions
+            cur.execute("SELECT id, product_name, price, created_at FROM subscriptions WHERE user_id = %s", (uid,))
+            for s in cur.fetchall():
+                transactions.append({
+                    "type": "subscription",
+                    "label": f"Souscription — {s['product_name']}",
+                    "amount": float(s["price"]),
+                    "sign": "-",
+                    "status": "completed",
+                    "date": s["created_at"],
+                    "detail": None,
+                })
+            # Retraits
+            cur.execute("SELECT id, amount, fee, net, status, created_at, operator FROM withdrawals WHERE user_id = %s", (uid,))
+            for w in cur.fetchall():
+                transactions.append({
+                    "type": "withdrawal",
+                    "label": "Retrait",
+                    "amount": float(w["amount"]),
+                    "sign": "-",
+                    "status": w["status"],
+                    "date": w["created_at"],
+                    "detail": f"Net FCFA {int(float(w['net'])):,} · {w['operator'] or '-'}",
+                })
+            # Commissions de parrainage
+            cur.execute("""
+                SELECT c.amount, c.level, c.created_at, u.full_name
+                FROM commissions c LEFT JOIN users u ON u.id = c.source_user_id
+                WHERE c.user_id = %s
+            """, (uid,))
+            for c in cur.fetchall():
+                source = c["full_name"] or "un filleul"
+                transactions.append({
+                    "type": "commission",
+                    "label": f"Commission parrainage (Niv. {c['level']})",
+                    "amount": float(c["amount"]),
+                    "sign": "+",
+                    "status": "completed",
+                    "date": c["created_at"],
+                    "detail": f"De {source}",
+                })
+
+    # Trier du plus récent au plus ancien
+    transactions.sort(key=lambda t: t["date"], reverse=True)
+
+    with get_db() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT balance FROM users WHERE id = %s", (uid,))
+            row = cur.fetchone()
+    balance = f"{int(float(row['balance'] or 0)):,}" if row else "0"
+
+    return render_template("echange.html", transactions=transactions, balance=balance)
 
 
 @app.route("/politique")

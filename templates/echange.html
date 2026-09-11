@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>Échange - Barka Énergie</title>
+    <title>Transactions - Barka Énergie</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -19,16 +19,39 @@
         </header>
 
         <section class="page-title">
-            <h1>Échange</h1>
-            <p>Échangez vos fonds en toute simplicité</p>
+            <h1>Transactions</h1>
+            <p>Historique de vos opérations</p>
         </section>
 
         <section class="card-section">
-            <div class="bank-card" style="margin:0; text-align:center;">
-                <span class="bank-number-label">Fonctionnalité</span>
-                <span class="bank-number-value" style="font-size:16px;">L'échange sera bientôt disponible</span>
-                <p class="hint" style="margin-top:12px;">Nous travaillons actuellement sur la fonctionnalité d'échange. Revenez bientôt !</p>
+            <h2 class="section-title">Solde disponible</h2>
+            <div class="bank-balance" style="margin:0;">FCFA {{ balance }}</div>
+        </section>
+
+        <section class="card-section">
+            <h2 class="section-title">Historique</h2>
+            {% if transactions %}
+            <div class="tx-list">
+                {% for t in transactions %}
+                <div class="tx-item">
+                    <div class="tx-icon tx-{{ t.type }}"></div>
+                    <div class="tx-main">
+                        <span class="tx-label">{{ t.label }}</span>
+                        {% if t.detail %}
+                        <span class="tx-detail">{{ t.detail }}</span>
+                        {% endif %}
+                        <span class="tx-date">{{ t.date.strftime('%d/%m/%Y %H:%M') }}</span>
+                    </div>
+                    <div class="tx-right">
+                        <span class="tx-amount {% if t.sign == '+' %}tx-in{% else %}tx-out{% endif %}">{{ t.sign }}FCFA {{ t.amount|fmt }}</span>
+                        <span class="badge badge-{{ t.status }}">{% if t.status == 'pending' %}En attente{% elif t.status == 'approved' %}Approuvé{% elif t.status == 'rejected' %}Rejeté{% else %}Terminé{% endif %}</span>
+                    </div>
+                </div>
+                {% endfor %}
             </div>
+            {% else %}
+            <p class="hint">Aucune transaction pour le moment.</p>
+            {% endif %}
         </section>
     </main>
 

@@ -280,3 +280,63 @@
 }
 .member-name { font-size: 14px; font-weight: 600; }
 .member-phone { font-size: 13px; color: var(--muted); }
+
+/* ===== Historique des transactions ===== */
+.tx-list { display: flex; flex-direction: column; gap: 10px; }
+.tx-item {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+}
+.tx-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    position: relative;
+    background: rgba(0,229,255,0.12);
+    border: 1px solid rgba(0,229,255,0.25);
+}
+.tx-icon::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+}
+.tx-deposit { background: rgba(0,229,255,0.12); border-color: rgba(0,229,255,0.3); }
+.tx-deposit::after { background: linear-gradient(135deg, #00e5ff, #14f1d9); border-radius: 50%; }
+.tx-withdrawal { background: rgba(255,193,7,0.12); border-color: rgba(255,193,7,0.3); }
+.tx-withdrawal::after { background: linear-gradient(135deg, #ffb300, #ff9800); }
+.tx-subscription { background: rgba(139,92,246,0.12); border-color: rgba(139,92,246,0.3); }
+.tx-subscription::after { background: linear-gradient(135deg, #8b5cf6, #6366f1); }
+.tx-commission { background: rgba(16,185,129,0.12); border-color: rgba(16,185,129,0.3); }
+.tx-commission::after { background: linear-gradient(135deg, #10b981, #14f1d9); border-radius: 50%; }
+
+.tx-main { flex: 1; display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.tx-label { font-size: 14px; font-weight: 600; color: #fff; }
+.tx-detail { font-size: 12px; color: var(--muted); }
+.tx-date { font-size: 11px; color: rgba(143,167,184,0.7); }
+
+.tx-right { display: flex; flex-direction: column; align-items: flex-end; gap: 5px; }
+.tx-amount { font-size: 14px; font-weight: 700; white-space: nowrap; }
+.tx-in { color: #14f1d9; }
+.tx-out { color: #fca5a5; }
+
+.badge {
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: capitalize;
+}
+.badge-pending { color: #ffc24d; background: rgba(255,170,0,0.12); }
+.badge-approved { color: #a7f3d0; background: rgba(16,185,129,0.12); }
+.badge-rejected { color: #fecaca; background: rgba(239,68,68,0.12); }
+.badge-completed { color: #a7f3d0; background: rgba(16,185,129,0.12); }
