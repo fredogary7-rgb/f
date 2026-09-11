@@ -13,3 +13,8 @@ __pycache__/
 # IDE
 .vscode/
 .idea/
+
+# Fichiers temporaires de test
+r.txt
+test_result.txt
+
