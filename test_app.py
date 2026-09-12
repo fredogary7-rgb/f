@@ -135,9 +135,43 @@ r = client.post("/retrait", data={"action": "withdraw", "amount": "1000", "opera
 assert "Retrait de FCFA" in r.get_data(as_text=True)
 print("Retrait effectué sans délai de 24h.")
 
+# 5e. Vérifier que les commissions sont données APRÈS la validation du dépôt
+with get_db() as conn:
+    cur = conn.cursor()
+    cur.execute("SELECT balance FROM users WHERE phone = %s", (data_a["phone"],))
+    balance_a_avant = float(cur.fetchone()[0])
+
+# B se connecte et fait un dépôt
+client.get("/deconnexion")
+client.post("/connexion", data={"login": data_b["phone"], "password": "secret123"}, follow_redirects=True)
+client.post("/recharger", data={"amount": "10000", "phone": "22900000002"}, follow_redirects=True)
+
+# A (admin) se reconnecte et approuve le dépôt de B
+client.get("/deconnexion")
+client.post("/connexion", data={"login": data_a["phone"], "password": "secret123"}, follow_redirects=True)
+with get_db() as conn:
+    cur = conn.cursor()
+    cur.execute("SELECT id FROM deposits WHERE user_id = (SELECT id FROM users WHERE phone = %s) ORDER BY id DESC LIMIT 1", (data_b["phone"],))
+    dep_b_id = cur.fetchone()[0]
+r = client.post("/admin/review", data={"deposit_id": str(dep_b_id), "action": "approve"}, follow_redirects=True)
+assert "approuvé" in r.get_data(as_text=True)
+
+with get_db() as conn:
+    cur = conn.cursor()
+    cur.execute("SELECT balance FROM users WHERE phone = %s", (data_a["phone"],))
+    balance_a_apres = float(cur.fetchone()[0])
+
+# Commission Lv1 = 15% de 10 000 = 1 500 FCFA
+assert balance_a_apres == balance_a_avant + 1500, f"Commission attendue 1500, obtenu {balance_a_apres - balance_a_avant}"
+print("Commissions parrainage créditées après validation du dépôt (15% => 1500 FCFA).")
+
 # 6. Nettoyage final
 with get_db() as conn:
     cur = conn.cursor()
+    cur.execute("DELETE FROM commissions WHERE user_id IN (SELECT id FROM users WHERE phone IN (%s, %s, %s))",
+                (data_a["phone"], data_b["phone"], data_bad["phone"]))
+    cur.execute("DELETE FROM withdrawals WHERE user_id IN (SELECT id FROM users WHERE phone IN (%s, %s, %s))",
+                (data_a["phone"], data_b["phone"], data_bad["phone"]))
     cur.execute("DELETE FROM deposits WHERE user_id IN (SELECT id FROM users WHERE phone IN (%s, %s, %s))",
                 (data_a["phone"], data_b["phone"], data_bad["phone"]))
     cur.execute("DELETE FROM subscriptions WHERE user_id IN (SELECT id FROM users WHERE phone IN (%s, %s, %s))",

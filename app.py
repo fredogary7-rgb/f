@@ -463,9 +463,6 @@ def souscrire():
                 VALUES (%s, %s, %s, %s, %s, %s)
             """, (session["user_id"], product_name, price, daily, total, days))
 
-    # Commissions de parrainage (Lv1 15%, Lv2 2%, Lv3 1%)
-    credit_referral_commissions(session["user_id"], price)
-
     flash("Souscription réussie ! Vos revenus journaliers démarrent.", "success")
     return redirect(url_for("portefeuille"))
 
@@ -564,6 +561,8 @@ def admin_review():
                 with conn.cursor() as cur:
                     cur.execute("UPDATE users SET balance = balance + %s WHERE id = %s", (dep["amount"], dep["user_id"]))
                     cur.execute("UPDATE deposits SET status = 'approved', reviewed_at = NOW() WHERE id = %s", (deposit_id,))
+            # Commissions de parrainage distribuées après validation du dépôt
+            credit_referral_commissions(dep["user_id"], float(dep["amount"]))
             flash("Dépôt approuvé et crédité.", "success")
         elif action == "reject":
             with get_db() as conn:
