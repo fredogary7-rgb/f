@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Mes produits - Barka Énergie</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/home.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/portefeuille.css') }}">
+</head>
+<body>
+    <main class="app">
+        <header class="dash-header">
+            <img class="dash-logo" src="{{ url_for('static', filename='f.jpg') }}" alt="Barka Énergie">
+            <span class="dash-brand">Barka Énergie</span>
+        </header>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-container">
+                    {% for category, message in messages %}
+                        <div class="flash flash-{{ category }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <section class="page-title">
+            <h1>Mes produits</h1>
+            <p>Suivez l'évolution de vos investissements</p>
+        </section>
+
+        {% if products %}
+            {% for p in products %}
+            <section class="card-section">
+                <div class="invest-card">
+                    <div class="invest-head">
+                        <span class="invest-name">{{ p.name }}</span>
+                        <span class="badge {% if p.active %}badge-approved{% else %}badge-completed{% endif %}">{{ 'Actif' if p.active else 'Terminé' }}</span>
+                    </div>
+
+                    <div class="invest-stats">
+                        <div class="invest-stat">
+                            <span class="stat-label">Investi</span>
+                            <span class="stat-value">FCFA {{ p.price|fmt }}</span>
+                        </div>
+                        <div class="invest-stat">
+                            <span class="stat-label">Revenu / jour</span>
+                            <span class="stat-value">FCFA {{ p.daily|fmt }}</span>
+                        </div>
+                        <div class="invest-stat">
+                            <span class="stat-label">Revenu total</span>
+                            <span class="stat-value">FCFA {{ p.total|fmt }}</span>
+                        </div>
+                    </div>
+
+                    <div class="invest-date">Payé le {{ p.start.strftime('%d/%m/%Y à %H:%M') }}</div>
+
+                    <div class="invest-progress-head">
+                        <span>Jours écoulés : {{ p.elapsed_days }} / {{ p.total_days }}</span>
+                        <span>{{ p.progress }}%</span>
+                    </div>
+                    <div class="invest-progress">
+                        <div class="invest-progress-fill" style="width: {{ p.progress }}%;"></div>
+                    </div>
+
+                    <div class="invest-footer">
+                        <div>
+                            <span class="stat-label">Revenus générés</span>
+                            <span class="stat-value earn">FCFA {{ p.earned|fmt }}</span>
+                        </div>
+                        <div>
+                            <span class="stat-label">Jours restants</span>
+                            <span class="stat-value">{{ p.remaining }}</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            {% endfor %}
+        {% else %}
+            <section class="card-section">
+                <div class="bank-card" style="text-align:center;">
+                    <span class="bank-number-label">Aucun produit</span>
+                    <span class="bank-number-value" style="font-size:16px; margin-top:8px;">Vous n'avez pas encore acheté de produit</span>
+                    <a class="wallet-btn" href="{{ url_for('produit') }}" style="margin-top:16px;">Voir les produits</a>
+                </div>
+            </section>
+        {% endif %}
+    <a class="whatsapp-btn" href="https://chat.whatsapp.com/GtdEVYP0OzMIRthQT4ZKR4" target="_blank" rel="noopener" aria-label="Service client WhatsApp">
+        <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413Z"/></svg>
+    </a>
+
+    <nav class="bottom-nav">
+        <a class="nav-item" href="{{ url_for('home') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            <span>Maison</span>
+        </a>
+        <a class="nav-item active" href="{{ url_for('produit') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/><path d="m3.3 7 8.7 5 8.7-5"/><path d="M12 22V12"/></svg>
+            <span>Produit</span>
+        </a>
+        <a class="nav-item" href="{{ url_for('portefeuille') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1"/><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4"/></svg>
+            <span>Portefeuille</span>
+        </a>
+        <a class="nav-item" href="{{ url_for('dashboard') if session.get('user_id') else url_for('login') }}">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+            <span>Mon</span>
+        </a>
+    </nav>
+
+    <div class="toast" id="toast"></div>
+    <script>
+        const toast = document.getElementById('toast');
+        let toastTimer;
+        function showToast(msg) {
+            toast.textContent = msg;
+            toast.classList.add('show');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('show'), 1800);
+        }
+    </script>
+    <script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>

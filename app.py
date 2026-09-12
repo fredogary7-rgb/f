@@ -172,12 +172,20 @@ def credit_income(user_id):
             subs = cur.fetchall()
             for s in subs:
                 sid, daily, days, start, credited_amount = s
+                # Compte les cycles complets de 24h depuis l'heure du paiement
                 elapsed_days = max(0, (now - start).days)
                 earned = min(elapsed_days, days) * float(daily)
                 to_credit = earned - float(credited_amount or 0)
                 if to_credit > 0:
                     cur.execute("UPDATE users SET balance = balance + %s WHERE id = %s", (to_credit, user_id))
                     cur.execute("UPDATE subscriptions SET credited_amount = %s WHERE id = %s", (earned, sid))
+
+
+@app.before_request
+def auto_credit_income():
+    """Crédite les revenus journaliers automatiquement à chaque requête d'un utilisateur connecté."""
+    if "user_id" in session and request.endpoint != "static":
+        credit_income(session["user_id"])
 
 
 def credit_referral_commissions(user_id, amount):
@@ -261,6 +269,41 @@ def produit_confirmation(name):
     if not product:
         return redirect(url_for("produit"))
     return render_template("confirmation.html", product=product)
+
+
+@app.route("/mes-produits")
+@login_required
+def mes_produits():
+    credit_income(session["user_id"])
+    now = datetime.now()
+    with get_db() as conn:
+        with conn.cursor(cursor_factory=RealDictCursor) as cur:
+            cur.execute("SELECT * FROM subscriptions WHERE user_id = %s ORDER BY created_at DESC", (session["user_id"],))
+            subs = cur.fetchall()
+
+    items = []
+    for s in subs:
+        start = s["start_date"]
+        total_days = int(s["days"] or 0)
+        # Cycles complets de 24h depuis l'heure du paiement
+        elapsed_days = max(0, (now - start).days)
+        elapsed_days = min(elapsed_days, total_days)
+        progress = int(elapsed_days * 100 / total_days) if total_days else 100
+        items.append({
+            "name": s["product_name"],
+            "price": int(float(s["price"])),
+            "daily": int(float(s["daily_income"])),
+            "total": int(float(s["total_income"])),
+            "start": start,
+            "elapsed_days": elapsed_days,
+            "total_days": total_days,
+            "progress": progress,
+            "earned": int(float(s["credited_amount"] or 0)),
+            "remaining": max(0, total_days - elapsed_days),
+            "active": elapsed_days < total_days,
+        })
+
+    return render_template("mes_produits.html", products=items, count=len(items))
 
 
 @app.route("/portefeuille")
